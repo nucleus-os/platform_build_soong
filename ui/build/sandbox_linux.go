@@ -104,6 +104,7 @@ func (c *Cmd) sandboxSupported() bool {
 		var sandboxArgs []string
 		sandboxArgs = append(sandboxArgs,
 			"-H", "android-build",
+			"--disable_clone_newuts",
 			"-e",
 			"-u", "nobody",
 			"-g", sandboxConfig.group,
@@ -142,18 +143,17 @@ func (c *Cmd) sandboxSupported() bool {
 			return
 		}
 
-		c.ctx.Println("Build sandboxing disabled due to nsjail error.")
-
 		for _, line := range strings.Split(strings.TrimSpace(string(data)), "\n") {
 			c.ctx.Verboseln(line)
 		}
 
 		if err == nil {
-			c.ctx.Verboseln("nsjail exited successfully, but without the correct output")
+			c.ctx.Fatalf("nsjail exited successfully without proving the sandbox contract")
 		} else if e, ok := err.(*exec.ExitError); ok {
-			c.ctx.Verbosef("nsjail failed with %v", e.ProcessState.String())
+			c.ctx.Fatalf("nsjail sandbox probe failed with %v:\n%s",
+				e.ProcessState.String(), strings.TrimSpace(string(data)))
 		} else {
-			c.ctx.Verbosef("nsjail failed with %v", err)
+			c.ctx.Fatalf("nsjail sandbox probe failed: %v", err)
 		}
 	})
 
@@ -262,6 +262,7 @@ func (c *Cmd) wrapSandbox() {
 
 		// Set the hostname to something consistent
 		"-H", "android-build",
+		"--disable_clone_newuts",
 
 		// Use the current working dir
 		"--cwd", wd,
