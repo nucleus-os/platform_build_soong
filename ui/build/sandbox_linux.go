@@ -79,6 +79,9 @@ func (c *Cmd) sandboxSupported() bool {
 	if !c.Sandbox.Enabled {
 		return false
 	}
+	if outerSandbox, ok := c.config.Environment().Get("SOONG_OUTER_SANDBOX"); ok && outerSandbox == "1" {
+		return false
+	}
 
 	sandboxConfig.once.Do(func() {
 		sandboxConfig.group = "nogroup"

@@ -76,6 +76,15 @@ func TestMountFlagsSrcDirRWAllowlist(t *testing.T) {
 	}
 }
 
+func TestOuterSandboxDisablesNestedSandbox(t *testing.T) {
+	c := testCmd()
+	c.Sandbox = basicSandbox
+	c.config.Environment().Set("SOONG_OUTER_SANDBOX", "1")
+	if c.sandboxSupported() {
+		t.Error("nested nsjail must be disabled inside an outer sandbox")
+	}
+}
+
 // utils for setting up test
 func testConfig() Config {
 	// create a minimal testConfig
