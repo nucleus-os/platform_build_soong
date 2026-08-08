@@ -20,15 +20,20 @@
 #  ${OUT_DIR_COMMON_BASE}: Change the default out directory to
 #    ${OUT_DIR_COMMON_BASE}/$(basename ${TOP})
 
-# Ensure GOROOT is set to the in-tree version.
+# Ensure GOROOT is set to the in-tree version. An ARM Linux VM may intentionally
+# execute AOSP's checked-in x86_64 host tools through a binary translator.
 case $(uname) in
     Linux)
-        case $(uname -m) in
-            x86_64)
+        case ${SOONG_BOOTSTRAP_PREBUILT_TAG:-$(uname -m)} in
+            linux-x86|x86_64)
                 export GOROOT="${TOP}/prebuilts/go/linux-x86/"
                 ;;
-            aarch64)
+            linux-arm64|aarch64)
                 export GOROOT="${TOP}/prebuilts/go/linux-arm64/"
+                ;;
+            *)
+                echo "unknown Linux host prebuilt tag: ${SOONG_BOOTSTRAP_PREBUILT_TAG:-$(uname -m)}" >&2
+                exit 1
                 ;;
         esac
         ;;
@@ -37,6 +42,7 @@ case $(uname) in
         ;;
     *) echo "unknown OS:" $(uname) >&2 && exit 1;;
 esac
+unset SOONG_BOOTSTRAP_PREBUILT_TAG
 
 if [[ "${GOROOT}" != $(${GOROOT}/bin/go env GOROOT) ]]; then
   echo "Error: go env GOROOT variable is being overridden. Are you inside a go module?" >&2 && exit 1
