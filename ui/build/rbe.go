@@ -213,27 +213,6 @@ func createSisoConfigDir(ctx Context, config Config, value string) string {
 	return confDir
 }
 
-func sisoConfigDirArgument(ctx Context, config Config, value string) string {
-	configDir := createSisoConfigDir(ctx, config, value)
-	if !filepath.IsAbs(configDir) {
-		return configDir
-	}
-
-	workingDirectory, err := os.Getwd()
-	if err != nil {
-		ctx.Fatalf("Could not determine the Siso execution directory: %v", err)
-	}
-	configDir, err = relativeSisoConfigDir(workingDirectory, configDir)
-	if err != nil {
-		ctx.Fatalf("Could not make Siso config directory %q relative to %q: %v", configDir, workingDirectory, err)
-	}
-	return configDir
-}
-
-func relativeSisoConfigDir(workingDirectory, configDir string) (string, error) {
-	return filepath.Rel(workingDirectory, configDir)
-}
-
 // Create a script for siso to get credentials.
 // Siso will invoke ${SISO_CREDENTIAL_HELPER} with "get", so put the actual credhelper command
 // invocation in `soong-convert-command`.

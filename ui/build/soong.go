@@ -697,7 +697,7 @@ func runSoong(ctx Context, config Config, enforceNoSoongOutput bool) {
 					"-f", filepath.Join(config.SoongOutDir(), "bootstrap.ninja"),
 				}
 				if value := config.SisoConfigDir(); value != "" {
-					value = sisoConfigDirArgument(ctx, config, value)
+					value = createSisoConfigDir(ctx, config, value)
 					ninjaArgs = append(ninjaArgs, fmt.Sprintf("--config_repo_dir=%s", value))
 				}
 				sisoExperiments := []string{

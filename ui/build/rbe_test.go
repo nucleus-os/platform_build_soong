@@ -134,20 +134,4 @@ func TestDumpRBEMetricsErrors(t *testing.T) {
 	}
 }
 
-func TestSisoConfigDirArgumentSupportsAbsoluteOutDir(t *testing.T) {
-	workingDirectory := t.TempDir()
-	outputDirectory := filepath.Join(filepath.Dir(workingDirectory), "output")
-	configDirectory := filepath.Join(outputDirectory, "siso_config")
-	relative, err := relativeSisoConfigDir(workingDirectory, configDirectory)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if filepath.IsAbs(relative) {
-		t.Fatalf("Siso config directory remained absolute: %q", relative)
-	}
-	if got := filepath.Clean(filepath.Join(workingDirectory, relative)); got != configDirectory {
-		t.Fatalf("relative Siso config directory resolved to %q, want %q", got, configDirectory)
-	}
-}
-
 var rbeBootstrapProgram = fmt.Sprintf("#!/bin/bash\necho 1 > $RBE_output_dir/%s\n", rbeMetricsPBFilename)
