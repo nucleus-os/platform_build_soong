@@ -92,7 +92,7 @@ func runNinja(ctx Context, config Config, ninjaArgs []string) {
 			"--log_dir", config.LogsDir(),
 		}
 		if value := config.SisoConfigDir(); value != "" {
-			value = createSisoConfigDir(ctx, config, value)
+			value = sisoConfigDirArgument(ctx, config, value)
 			args = append(args, fmt.Sprintf("--config_repo_dir=%s", value))
 		}
 		// b/374179435
