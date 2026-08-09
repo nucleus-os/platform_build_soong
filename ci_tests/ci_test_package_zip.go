@@ -298,8 +298,8 @@ func extendBuilderCommand(ctx android.ModuleContext, m android.ModuleProxy, buil
 			continue
 		}
 
-		f := strings.TrimPrefix(installedFile.String(), productOut+"/")
-		if strings.HasPrefix(f, "out") {
+		f, belongsToProduct := productRelativePath(productOut, installedFile.String())
+		if !belongsToProduct {
 			continue
 		}
 		if strings.HasPrefix(f, "system/") {
@@ -324,6 +324,14 @@ func extendBuilderCommand(ctx android.ModuleContext, m android.ModuleProxy, buil
 		builder.Command().Text("cp").Flag("-Rf").Input(spec.SrcPath()).Output(tempOut)
 		builder.Temporary(tempOut)
 	}
+}
+
+func productRelativePath(productOut, installedFile string) (string, bool) {
+	relative, err := filepath.Rel(productOut, installedFile)
+	if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) || filepath.IsAbs(relative) {
+		return "", false
+	}
+	return relative, true
 }
 
 func removeFileExtension(filename string) string {
